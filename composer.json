@@ -1,5 +1,5 @@
 {
-    "name": "dynamodb-query-builder",
+    "name": "pjonaszik/dynamodb-query-builder",
     "description": "Aws dynamoDb query builder",
     "type": "library",
     "prefer-stable": true,
