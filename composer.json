@@ -3,7 +3,14 @@
     "description": "Aws dynamoDb query builder",
     "type": "library",
     "prefer-stable": true,
-    "private": true,
+    "keywords": [
+        "aws",
+        "dynamodb",
+        "querybuilder",
+        "dynamo querybuilder"
+    ],
+    "homepage": "https://github.com/pjonaszik/dynamodb-query-builder",
+    "license": "MIT",
     "require": {
         "php": ">=8.1",
         "aws/aws-sdk-php": "^3.269"
