@@ -1,0 +1,56 @@
+version: '3'
+services:
+  # Install composer dependencies
+  init-app:
+    image: composer:latest
+    user: "1000:1000"
+    working_dir: /var/www/html
+    command: ["composer", "install"]
+    volumes:
+      - ./:/var/www/html
+  # application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DYNAMODB_CONNECTION: local
+      AWS_REGION: eu-central-1
+      APP_DEBUG: true
+      APP_ENV: dev
+      DYNAMODB_LOCAL_ENDPOINT: http://localstack:4566
+    volumes:
+      - ./:/var/www/html
+    networks:
+      - dynamo-query-builder-network
+    depends_on:
+      init-app:
+        condition: service_completed_successfully
+
+  # localstack
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "4566"
+    environment:
+      SERVICES: localstack:4566
+      AWS_DEFAULT_REGION: eu-central-1
+    networks:
+      - dynamo-query-builder-network
+  # aws
+  awscli:
+    image: amazon/aws-cli
+    entrypoint: /bin/sh -c
+    command: >
+      "sleep 10; aws dynamodb create-table --table-name dynamo-query-builder-table-test --region eu-central-1 --no-sign-request --endpoint-url=http://localstack:4566 --attribute-definitions AttributeName=id,AttributeType=N --key-schema AttributeName=id,KeyType=HASH --provisioned-throughput ReadCapacityUnits=10,WriteCapacityUnits=5;"
+    environment:
+      AWS_DEFAULT_REGION: eu-central-1
+    networks:
+      - dynamo-query-builder-network
+    depends_on:
+      localstack:
+        condition: service_started
+
+networks:
+  dynamo-query-builder-network:
+    driver: bridge
